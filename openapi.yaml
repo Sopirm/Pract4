@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  title: Admin Panel API
+  version: 1.0.0
+  description: API для управления товарами интернет-магазина
+
+paths:
+  /products:
+    get:
+      summary: Получить список всех товаров
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    
+    post:
+      summary: Создать новый товар
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Товар успешно создан
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        categoryIds:
+          type: array
+          items:
+            type: integer 
