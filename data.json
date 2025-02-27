@@ -1,0 +1,64 @@
+{
+    "products": [
+        {
+            "id": 2,
+            "name": "Смартфон Samsung",
+            "price": 29999,
+            "description": "Современный смартфон",
+            "categoryIds": [
+                1,
+                2
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Наушники Sony",
+            "price": 7999,
+            "description": "Беспроводные наушники",
+            "categoryIds": [
+                1
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Зарядное устройство",
+            "price": 1499,
+            "description": "Быстрая зарядка",
+            "categoryIds": [
+                2
+            ]
+        },
+        {
+            "id": 6,
+            "name": "Пылесос Dyson",
+            "price": 59990,
+            "description": "Пылесос, мощный очень",
+            "categoryIds": [
+                1
+            ]
+        },
+        {
+            "id": 7,
+            "name": "Macbook Air 2021",
+            "price": 94490,
+            "description": "Macbook Air 2021, на процессоре M1",
+            "categoryIds": [
+                1
+            ]
+        }
+    ],
+    "categories": [
+        {
+            "id": 1,
+            "name": "Электроника"
+        },
+        {
+            "id": 2,
+            "name": "Аксессуары"
+        }, 
+        {
+            "id": 3,
+            "name": "Игрушки"
+        }
+    ]
+}

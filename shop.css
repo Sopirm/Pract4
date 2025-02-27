@@ -7,8 +7,26 @@
 .product-card {
     border: 1px solid #ddd;
     padding: 15px;
+    margin-top: 10px;
     border-radius: 8px;
+    background-color: #01a89a;
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 16px;
 }
 .category-filter {
     padding: 20px;
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+}
+
+.category-filter input[type="checkbox"]:checked {
+    accent-color: #01a89a;
+}
+
+.category-filter input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    cursor: pointer;
 }

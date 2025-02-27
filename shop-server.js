@@ -1,70 +1,37 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs').promises;
 const app = express();
 const PORT = 8080;
+
 app.use(express.static(path.join(__dirname)));
 
-// Тестовые данные
-const products = [
-    {
-        id: 1,
-        name: "Ноутбук HP",
-        price: 49999,
-        description: "Мощный ноутбук для работы",
-        categoryIds: [1]
-    },
-    {
-        id: 2,
-        name: "Смартфон Samsung",
-        price: 29999,
-        description: "Современный смартфон",
-        categoryIds: [1, 2]
-    },
-    {
-        id: 3,
-        name: "Наушники Sony",
-        price: 7999,
-        description: "Беспроводные наушники",
-        categoryIds: [1]
-    },
-    {
-        id: 4,
-        name: "Чехол для смартфона",
-        price: 999,
-        description: "Защитный чехол",
-        categoryIds: [2]
-    },
-    {
-        id: 5,
-        name: "Зарядное устройство",
-        price: 1499,
-        description: "Быстрая зарядка",
-        categoryIds: [2]
-    }
-];
-
-const categories = [
-    {
-        id: 1,
-        name: "Электроника"
-    },
-    {
-        id: 2,
-        name: "Аксессуары"
-    }
-];
-
+// Функция для чтения данных из файла
+async function readData() {
+    const data = await fs.readFile('data.json', 'utf8');
+    return JSON.parse(data);
+}
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'shop.html'));
 });
 
-app.get('/api/products', (req, res) => {
-    res.json(products);
+app.get('/products', async (req, res) => {
+    try {
+        const data = await readData();
+        res.json(data.products);
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при чтении данных' });
+    }
 });
 
-app.get('/api/categories', (req, res) => {
-    res.json(categories);
+app.get('/categories', async (req, res) => {
+    try {
+        const data = await readData();
+        res.json(data.categories);
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при чтении данных' });
+    }
 });
 
 app.listen(PORT, () => {
