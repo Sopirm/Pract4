@@ -1,15 +1,54 @@
 const API_URL = 'http://localhost:8080';
-async function loadProducts() {
+let allProducts = [];
+let allCategories = [];
+let selectedCategoryIds = [];
+
+async function executeGraphQL(query) {
     try {
-        const response = await fetch(`${API_URL}/products`);
+        const response = await fetch(`${API_URL}/graphql`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query })
+        });
+        
         if (!response.ok) {
             throw new Error(`HTTP ошибка: ${response.status} ${response.statusText}`);
         }
-        const data = await response.json();
-        allProducts = data; // Исправлено: сохраняем непосредственно полученные данные
-        displayProducts(data); // Отображаем все продукты
+        
+        const result = await response.json();
+        
+        if (result.errors) {
+            throw new Error(result.errors[0].message);
+        }
+        
+        return result.data;
     } catch (error) {
-        console.error('Детальная ошибка при загрузке продуктов:', error);
+        console.error('Ошибка при выполнении GraphQL запроса:', error);
+        throw error;
+    }
+}
+
+
+async function loadProducts() {
+    try {
+        // Запрашиваем все необходимые поля для работы с продуктами
+        const query = `{
+            products {
+                name
+                price
+                description
+                categoryIds
+            }
+        }`;
+        
+        const data = await executeGraphQL(query);
+        allProducts = data.products;
+        
+        // Отображаем продукты с учетом выбранных категорий
+        filterProducts();
+    } catch (error) {
         const productsContainer = document.getElementById('products');
         if (productsContainer) {
             productsContainer.innerHTML = `
@@ -25,16 +64,22 @@ async function loadProducts() {
 
 async function loadCategories() {
     try {
-        const response = await fetch(`${API_URL}/categories`);
-        if (!response.ok) {
-            throw new Error(`HTTP ошибка: ${response.status} ${response.statusText}`);
-        }
-        const data = await response.json();
+        const query = `{
+            categories {
+                id
+                name
+            }
+        }`;
+        
+        const data = await executeGraphQL(query);
+        allCategories = data.categories;
+        
         const categoriesContainer = document.getElementById('categories');
         if (!categoriesContainer) {
             throw new Error('Контейнер категорий не найден');
         }
-        categoriesContainer.innerHTML = data.map(category => `
+        
+        categoriesContainer.innerHTML = allCategories.map(category => `
             <label>
                 <input type="checkbox" value="${category.id}" class="category-checkbox"> ${category.name}
             </label>
@@ -43,10 +88,13 @@ async function loadCategories() {
         // Добавляем обработчики событий для чекбоксов
         const checkboxes = document.querySelectorAll('.category-checkbox');
         checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', filterProducts);
+            checkbox.addEventListener('change', () => {
+                updateSelectedCategories();
+                filterProducts();
+            });
         });
     } catch (error) {
-        console.error('Детальная ошибка при загрузке категорий:', error);
+        console.error('Ошибка при загрузке категорий:', error);
         const categoriesContainer = document.getElementById('categories');
         if (categoriesContainer) {
             categoriesContainer.innerHTML = `
@@ -59,9 +107,31 @@ async function loadCategories() {
     }
 }
 
-// Добавляем новую функцию для фильтрации
-let allProducts = []; // Сохраняем все продукты
 
+ // Обновление списка выбранных категорий
+ function updateSelectedCategories() {
+    selectedCategoryIds = Array.from(document.querySelectorAll('.category-checkbox:checked'))
+        .map(checkbox => checkbox.value);
+    console.log('Выбранные категории:', selectedCategoryIds);
+}
+
+// Фильтрация продуктов на стороне клиента
+function filterProducts() {
+    const filteredProducts = selectedCategoryIds.length === 0 
+        ? allProducts 
+        : allProducts.filter(product => 
+            selectedCategoryIds.every(selectedCategoryId =>
+                product.categoryIds.some(productCategoryId => 
+                    productCategoryId.toString() === selectedCategoryId
+                )
+            )
+        );
+    
+    console.log('Отфильтрованные продукты:', filteredProducts);
+    displayProducts(filteredProducts);
+}
+
+// Отображение продуктов
 function displayProducts(products) {
     const productsContainer = document.getElementById('products');
     if (!productsContainer) return;
@@ -75,27 +145,8 @@ function displayProducts(products) {
     `).join('');
 }
 
-function filterProducts() {
-    const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked'))
-        .map(checkbox => checkbox.value);
-    
-    console.log('Выбранные категории:', selectedCategories);
-    console.log('Все продукты:', allProducts);
-
-    const filteredProducts = selectedCategories.length === 0 
-        ? allProducts 
-        : allProducts.filter(product => 
-            selectedCategories.every(selectedCategoryId =>
-                product.categoryIds.some(productCategoryId => 
-                    productCategoryId.toString() === selectedCategoryId
-                )
-            )
-        );
-    
-    console.log('Отфильтрованные продукты:', filteredProducts);
-    
-    displayProducts(filteredProducts);
-}
-
-loadProducts();
-loadCategories();
+// Загрузка данных при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    loadCategories();
+    loadProducts();
+});
