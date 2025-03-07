@@ -3,6 +3,14 @@ let allProducts = [];
 let allCategories = [];
 let selectedCategoryIds = [];
 
+
+let selectedFields = {
+    name: true,
+    price: true,
+    description: true,
+    categories: true
+};
+
 async function executeGraphQL(query) {
     try {
         const response = await fetch(`${API_URL}/graphql`, {
@@ -33,20 +41,27 @@ async function executeGraphQL(query) {
 
 async function loadProducts() {
     try {
-        // Запрашиваем все необходимые поля для работы с продуктами
+        const selectedFieldsQuery = Object.entries(selectedFields)
+            .filter(([_, isSelected]) => isSelected)
+            .map(([field]) => {
+                if (field === 'categories') {
+                    return 'categories { name }';
+                }
+                return field;
+            })
+            .join('\n                ');
+
         const query = `{
-            products {
-                name
-                price
-                description
+            productCards {
+                ${selectedFieldsQuery}
                 categoryIds
             }
         }`;
         
-        const data = await executeGraphQL(query);
-        allProducts = data.products;
+        console.log('GraphQL запрос:', query); 
         
-        // Отображаем продукты с учетом выбранных категорий
+        const data = await executeGraphQL(query);
+        allProducts = data.productCards;
         filterProducts();
     } catch (error) {
         const productsContainer = document.getElementById('products');
@@ -108,14 +123,12 @@ async function loadCategories() {
 }
 
 
- // Обновление списка выбранных категорий
  function updateSelectedCategories() {
     selectedCategoryIds = Array.from(document.querySelectorAll('.category-checkbox:checked'))
         .map(checkbox => checkbox.value);
     console.log('Выбранные категории:', selectedCategoryIds);
 }
 
-// Фильтрация продуктов на стороне клиента
 function filterProducts() {
     const filteredProducts = selectedCategoryIds.length === 0 
         ? allProducts 
@@ -131,21 +144,40 @@ function filterProducts() {
     displayProducts(filteredProducts);
 }
 
+function updateSelectedFields() {
+    const checkboxes = document.querySelectorAll('.field-checkbox');
+    checkboxes.forEach(checkbox => {
+        selectedFields[checkbox.value] = checkbox.checked;
+    });
+    loadProducts(); 
+}
+
 // Отображение продуктов
 function displayProducts(products) {
     const productsContainer = document.getElementById('products');
     if (!productsContainer) return;
     
-    productsContainer.innerHTML = products.map(product => `
-        <div class="product-card">
-            <h3>${product.name}</h3>
-            <p>Цена: ${product.price} ₽</p>
-            <p>${product.description}</p>
-        </div>
-    `).join('');
+    productsContainer.innerHTML = products.map(product => {
+        let cardContent = '<div class="product-card">';
+        
+        if (selectedFields.name) {
+            cardContent += `<h3>${product.name}</h3>`;
+        }
+        if (selectedFields.price) {
+            cardContent += `<p>Цена: ${product.price} ₽</p>`;
+        }
+        if (selectedFields.description) {
+            cardContent += `<p>${product.description}</p>`;
+        }
+        if (selectedFields.categories && product.categories) {
+            cardContent += `<p>Категории: ${product.categories.map(cat => cat.name).join(', ')}</p>`;
+        }
+        
+        cardContent += '</div>';
+        return cardContent;
+    }).join('');
 }
 
-// Загрузка данных при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     loadProducts();

@@ -11,6 +11,21 @@
         <h3>Категории:</h3>
         <div id="categories"></div>
     </div>
+    <div class="fields-filter">
+        <h3>Отображаемые поля:</h3>
+        <label>
+            <input type="checkbox" class="field-checkbox" value="name" checked onchange="updateSelectedFields()"> Название
+        </label>
+        <label>
+            <input type="checkbox" class="field-checkbox" value="price" checked onchange="updateSelectedFields()"> Цена
+        </label>
+        <label>
+            <input type="checkbox" class="field-checkbox" value="description" checked onchange="updateSelectedFields()"> Описание
+        </label>
+        <label>
+            <input type="checkbox" class="field-checkbox" value="categories" checked onchange="updateSelectedFields()"> Категории
+        </label>
+    </div>
     <div class="products-grid" id="products"></div>
     
     <!-- Подключаем скрипт чата -->

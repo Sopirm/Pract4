@@ -10,18 +10,19 @@ const PORT = 8080;
 app.use(express.static(path.join(__dirname)));
 
 var schema = buildSchema(`
+    type Category {
+        id: Int!
+        name: String!
+        description: String!
+    }
+
     type Product {
         id: Int!
         name: String!
         price: Int!
         description: String!
         categoryIds: [Int]!
-    }
-    
-    type Category {
-        id: Int!
-        name: String!
-        description: String!
+        categories: [Category]
     }
     
     type Query {
@@ -32,52 +33,52 @@ var schema = buildSchema(`
         productPrices: [Product]
         productDescriptions: [Product]
     }
-    
-  `);
+`);
 
 
-  const root = {
+const root = {
     products: async () => {
-      const data = await readData();
-      return data.products;
+        const data = await readData();
+        return data.products;
     },
     categories: async () => {
         const data = await readData();
         return data.categories;
-      },
+    },
     productNames: async () => {
-      const data = await readData();
-      return data.products.map(product => product.name);
+        const data = await readData();
+        return data.products.map(product => product.name);
     },
     productCards: async () => {
-      const data = await readData();
-      return data.products.map(product => ({
-        name: product.name,
-        price: product.price,
-        description: product.description
-      }));
+        const data = await readData();
+        return data.products.map(product => ({
+            ...product,
+            categories: product.categoryIds.map(categoryId => 
+                data.categories.find(category => category.id === categoryId)
+            ).filter(Boolean)
+        }));
     },
     productPrices: async () => {
-      const data = await readData();
-      return data.products.map(product => ({
-        name: product.name,
-        price: product.price
-      }));
+        const data = await readData();
+        return data.products.map(product => ({
+            name: product.name,
+            price: product.price
+        }));
     },
     productDescriptions: async () => {
-      const data = await readData();
-      return data.products.map(product => ({
-        name: product.name,
-        description: product.description
-      }));
+        const data = await readData();
+        return data.products.map(product => ({
+            name: product.name,
+            description: product.description
+        }));
     }
-  };
+};
 
-  app.use('/graphql', graphqlHTTP({
+app.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: root,
     graphiql: true 
-  }));
+}));
 
 // Функция для чтения данных из файла
 async function readData() {

@@ -4,6 +4,20 @@
     gap: 20px;
     padding: 20px;
 }
+
+.search-filter, .price-filter {
+  padding: 10px 20px;
+  margin-bottom: 10px;
+}
+
+.price-filter input {
+  width: 100px;
+}
+
+.search-filter input {
+  width: 250px;
+}
+
 .product-card {
     border: 1px solid #ddd;
     padding: 15px;
@@ -13,6 +27,11 @@
     font-family: 'Arial', sans-serif;
     color: #ffffff;
     font-size: 16px;
+}
+
+h3 {
+  font-family: 'Arial', sans-serif;
+  font-size: 18px;
 }
 .category-filter {
     padding: 20px;
@@ -29,6 +48,23 @@
     height: 18px;
     margin-right: 8px;
     cursor: pointer;
+}
+
+.fields-filter input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.fields-filter input[type="checkbox"]:checked {
+  accent-color: #01a89a;
+}
+
+.fields-filter {
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  font-family: 'Arial', sans-serif;
 }
 
 
