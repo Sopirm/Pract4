@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  admin-panel:
+    build: 
+      context: .
+      dockerfile: Dockerfile.admin
+    container_name: admin-panel
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data.json:/app/data.json
+    restart: unless-stopped
+
+  user-panel:
+    build: 
+      context: .
+      dockerfile: Dockerfile.user
+    container_name: user-panel
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data.json:/app/data.json
+    restart: unless-stopped
+
+  websocket-server:
+    build: 
+      context: .
+      dockerfile: Dockerfile.websocket
+    container_name: websocket-server
+    ports:
+      - "7070:7070"
+    volumes:
+      - ./data.json:/app/data.json
+    restart: unless-stopped
